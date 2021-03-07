@@ -39,7 +39,8 @@ let imageFranceOff = UIImage(named: "france_OFF")
 
 var torchState:Bool = false
 let infos = ["Average Speed","Kilometers","Autonomy","Altitude","Temperature"]
-var datas_for_infos = ["1","1","1","1","1"]
+var datas_for_infos = ["0.0","0.0","0.0","0.0","0.0"]
+var maximas = ["1","1","1","1","1"]
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CBCentralManagerDelegate, CBPeripheralDelegate {
     
@@ -91,9 +92,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "customCell", for: indexPath)
-        cell.textLabel!.text = infos[indexPath.row]
-        cell.detailTextLabel!.text = datas_for_infos[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "customCell", for: indexPath) as! customTableViewCell
+        //cell.textLabel!.text = infos[indexPath.row]
+        //cell.detailTextLabel!.text = datas_for_infos[indexPath.row]
+        cell.title?.text = infos[indexPath.row]
+        cell.titleValue?.text = datas_for_infos[indexPath.row]
+        cell.maximumValue?.text = maximas[indexPath.row]
+        
         return cell
     }
     
