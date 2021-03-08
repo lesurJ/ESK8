@@ -38,9 +38,11 @@ let imageFranceOn = UIImage(named: "france_ON")
 let imageFranceOff = UIImage(named: "france_OFF")
 
 var torchState:Bool = false
-let infos = ["Average Speed","Kilometers","Autonomy","Altitude","Temperature"]
-var datas_for_infos = ["0.0","0.0","0.0","0.0","0.0"]
-var maximas = ["1","1","1","1","1"]
+let infos = ["tempFET","tempMotor","avgMotorCurrent","avgInputCurrent","avgIqCurent","avgIdCurent","Kilometers","dutyCycleNow","rpm","inpVoltage","ampHours","ampHoursCharged","watt_hours","watt_hours_charged","tachometer","tachometerAbs","fault","throttle"]
+
+var datas_for_infos = ["0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"]
+var maximas = ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]
+let colors = [UIColor .blue, UIColor .red, UIColor .yellow, UIColor .purple, UIColor .gray]
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CBCentralManagerDelegate, CBPeripheralDelegate {
     
@@ -83,6 +85,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         ledSwitch.isSelected = false
+        ledSwitch.onTintColor = UIColor .blue
         
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
@@ -315,6 +318,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBAction func selector(_ sender: UISegmentedControl) {
         let pos = sender.selectedSegmentIndex
         //print(pos)
+        ledSwitch.onTintColor = colors[pos]
         sendCode(code: UInt8(pos))
     }
     
