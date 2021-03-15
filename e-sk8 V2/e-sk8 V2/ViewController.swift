@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreBluetooth
+import CoreLocation
 import AVFoundation
 
 
@@ -44,7 +45,9 @@ var datas_for_infos = ["0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.
 var maximas = ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]
 let colors = [UIColor .blue, UIColor .red, UIColor .yellow, UIColor .purple, UIColor .gray]
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CBCentralManagerDelegate, CBPeripheralDelegate {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CBCentralManagerDelegate, CBPeripheralDelegate, CLLocationManagerDelegate {
+    
+    let locationManager = CLLocationManager()
     
     //for BLE
     var centralManager: CBCentralManager!
@@ -65,6 +68,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var torchButton: UIButton!
     @IBOutlet weak var mySegment: UISegmentedControl!
     @IBOutlet weak var ledSwitch: UISwitch!
+    @IBOutlet weak var speedStatus: UILabel!
     
     @IBOutlet weak var viewConnect: UIView!
     @IBOutlet weak var viewSpeed: UIView!
@@ -73,6 +77,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
     
         viewConnect.layer.cornerRadius = 20
         viewConnect.layer.masksToBounds = true
@@ -84,10 +93,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.layer.masksToBounds = true
         tableView.delegate = self
         tableView.dataSource = self
-        ledSwitch.isSelected = false
         ledSwitch.onTintColor = UIColor .blue
         
         centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        speedStatus.text = "\(locations[0].speed*3.6)" //convert to kph
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
