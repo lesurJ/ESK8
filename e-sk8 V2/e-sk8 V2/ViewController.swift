@@ -11,7 +11,7 @@ import CoreBluetooth
 import CoreLocation
 import AVFoundation
 
-
+//codes to be sent over Bluetooth to the arduino
 let INDEX0:UInt8 = 0
 let INDEX1:UInt8 = 1
 let INDEX2:UInt8 = 2
@@ -28,7 +28,7 @@ let REARLIGHTOFF:UInt8 = 12
 let FRANCEON:UInt8 = 13
 let FRANCEOFF:UInt8 = 14
 
-//create variables for the images
+//variables for the images
 let imageLeftBlinkerOn = UIImage(named: "left_ON")
 let imageLeftBlinkerOff = UIImage(named: "left_OFF")
 let imageRightBlinkerOn = UIImage(named: "right_ON")
@@ -39,17 +39,18 @@ let imageFranceOn = UIImage(named: "france_ON")
 let imageFranceOff = UIImage(named: "france_OFF")
 
 var torchState:Bool = false
+//data to be fed into the table at the bottom of the app
 let infos = ["tempFET","tempMotor","avgMotorCurrent","avgInputCurrent","avgIqCurent","avgIdCurent","Kilometers","dutyCycleNow","rpm","inpVoltage","ampHours","ampHoursCharged","watt_hours","watt_hours_charged","tachometer","tachometerAbs","fault","throttle"]
-
 var datas_for_infos = ["0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"]
 var maximas = ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]
+//colors for the segmented control
 let colors = [UIColor .blue, UIColor .red, UIColor .yellow, UIColor .purple, UIColor .gray]
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CBCentralManagerDelegate, CBPeripheralDelegate, CLLocationManagerDelegate {
     
     let locationManager = CLLocationManager()
     
-    //for BLE
+    //for Bluetooth Low Eenrgy Device (BLE)
     var centralManager: CBCentralManager!
     var HM10: CBPeripheral! = nil
     let HM10Name = "HMSoft"
@@ -58,6 +59,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var HM10CharacteristicUUID = CBUUID(string: "FFE1")
     var dataString = ""
 
+    //some outlets to change the properties of the items dynamically
     @IBOutlet weak var connectHM10: UIButton!
     @IBOutlet weak var disconnectHM10: UIButton!
     @IBOutlet weak var statusHM10: UILabel!
@@ -78,11 +80,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //instantiate location manager
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     
+        //do some reshaping of the items. They are nicer now !
         viewConnect.layer.cornerRadius = 20
         viewConnect.layer.masksToBounds = true
         viewSpeed.layer.cornerRadius = 20
