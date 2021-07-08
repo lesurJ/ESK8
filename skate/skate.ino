@@ -17,11 +17,11 @@ void setup() {
   
   leds::module1.begin();
   leds::module2.begin();
-  leds::module_hind.begin();
+  leds::module_back.begin();
 
   leds::module1.setBrightness(200);
   leds::module2.setBrightness(200);
-  leds::module_hind.setBrightness(200);
+  leds::module_back.setBrightness(200);
 
   init_france(false);
   
@@ -34,15 +34,12 @@ void setup() {
 
 
 void loop() {
-  communicateUpdate();
-  if(leds::newCommand){
-    updateLeds();
-  }
-  updateBlinkers();
-  delay(5);
+  getUpdate();
+  updateLeds();
+  delay(50);
 }
 
-void communicateUpdate(void) {
+void getUpdate(void) {
   //this function checks if a new code has been received over Bluetooth
   if (HM10.available()) {
     while (HM10.available()) {
@@ -56,7 +53,6 @@ void communicateUpdate(void) {
         BLE::myString.replace(">", " ");
         BLE::myString.trim();
         decodeString(BLE::myString);
-        leds::newCommand = true;
       }
     }
   }
@@ -90,107 +86,125 @@ void decodeString(String str) {
   int code = str.toInt();
   switch (code) {
     case leds::LEDINDEX0:
+      leds::previousColor = leds::selectedColor;
       leds::selectedColor = leds::LEDINDEX0;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDINDEX1:
+      leds::previousColor = leds::selectedColor;
       leds::selectedColor = leds::LEDINDEX1;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDINDEX2:
+      leds::previousColor = leds::selectedColor;
       leds::selectedColor = leds::LEDINDEX2;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDINDEX3:
+      leds::previousColor = leds::selectedColor;
       leds::selectedColor = leds::LEDINDEX3;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDINDEX4:
+      leds::previousColor = leds::selectedColor;
       leds::selectedColor = leds::LEDINDEX4;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDSON:
       leds::activated = true;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEDSOFF:
       leds::activated = false;
+      leds::newCommand = leds::SIDE;
       break;
 
     case leds::LEFTBLINKERON:
       leds::leftBlinker = true;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::LEFTBLINKEROFF:
       leds::leftBlinker = false;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::RIGHTBLINKERON:
       leds::rightBlinker = true;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::RIGHTBLINKEROFF:
       leds::rightBlinker = false;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::REARLIGHTON:
       leds::rearLight = true;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::REARLIGHTOFF:
       leds::rearLight = false;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::FRANCEON:
       leds::france = true;
+      leds::newCommand = leds::BACK;
       break;
 
     case leds::FRANCEOFF:
       leds::france = false;
+      leds::newCommand = leds::BACK;
       break;
   }
 }
 
 void updateLeds(void) {
-  leds::newCommand = false;
-  //This function selects the appropriate colors and activations for the LEDs strips
-  if (leds::activated) {
-    //int k = leds::selectedColor;
-    changeLedColor(leds::selectedColor);
-    //for (int i = 0; i < leds::LEDS_NUMBER; i++) {
-    //  leds::module1.setPixelColor(i, leds::color[k][0], leds::color[k][1], leds::color[k][2]);
-    //  leds::module2.setPixelColor(i, leds::color[k][0], leds::color[k][1], leds::color[k][2]);
-    //}
-  } else {
-    leds::module1.clear();
-    leds::module2.clear();
-  }
-
-  if (leds::rearLight) {
-    for (int i = 0; i < leds::LEDS_NUMBER_HIND; i++) {
-        leds::module_hind.setPixelColor(i, 255, 0, 0); //Default rear color is RED
+  if (leds::newCommand == leds::SIDE){
+    if (leds::activated) {
+      changeLedColor(leds::selectedColor);
+    } else {
+      leds::module1.clear();
+      leds::module2.clear();
     }
-    if (leds::france) {
-      init_france(true);
-    } 
   }
-  else {
-    leds::module_hind.clear();
+  
+  if (leds::newCommand == leds::BACK){
+    if (leds::rearLight) {
+      activateBackLight();
+      if (leds::france) {
+        init_france(true);
+      } 
+    } else {
+      leds::module_back.clear();
+    }
   }
-
+  
   leds::module1.show();
   leds::module2.show();
-  leds::module_hind.show();
+  leds::module_back.show();
+
+  leds::newCommand = leds::DISABLED;
 }
 
 void changeLedColor(int new_color){
+  int newColor = leds::selectedColor;
+  int prevColor = leds::previousColor;
   for (int i = 0; i < int(leds::LEDS_NUMBER/2); i++) {
     leds::module1.clear();
     leds::module2.clear();
-    leds::module1.setPixelColor(i, leds::color[new_color][0], leds::color[new_color][1], leds::color[new_color][2]);
-    leds::module1.setPixelColor(leds::LEDS_NUMBER - 1 - i, leds::color[new_color][0], leds::color[new_color][1], leds::color[new_color][2]);
-    leds::module2.setPixelColor(i, leds::color[new_color][0], leds::color[new_color][1], leds::color[new_color][2]);
-    leds::module2.setPixelColor(leds::LEDS_NUMBER - 1 - i, leds::color[new_color][0], leds::color[new_color][1], leds::color[new_color][2]);
+    leds::module1.setPixelColor(i, leds::color[prevColor][0], leds::color[prevColor][1], leds::color[prevColor][2]);
+    leds::module1.setPixelColor(leds::LEDS_NUMBER - 1 - i, leds::color[prevColor][0], leds::color[prevColor][1], leds::color[prevColor][2]);
+    leds::module2.setPixelColor(i, leds::color[prevColor][0], leds::color[prevColor][1], leds::color[prevColor][2]);
+    leds::module2.setPixelColor(leds::LEDS_NUMBER - 1 - i, leds::color[prevColor][0], leds::color[prevColor][1], leds::color[prevColor][2]);
     leds::module1.show();
     leds::module2.show();
     delay(20);
@@ -202,7 +216,13 @@ void changeLedColor(int new_color){
     leds::module2.setPixelColor(leds::LEDS_NUMBER - 1 - i, leds::color[new_color][0], leds::color[new_color][1], leds::color[new_color][2]);
     leds::module1.show();
     leds::module2.show();
-    delay(20);
+    delay(30);
+  }
+}
+
+void activateBackLight(void){
+  for (int i = 0; i < leds::LEDS_NUMBER_HIND; i++) {
+    leds::module_back.setPixelColor(i, 255, 0, 0); //Default rear color is RED
   }
 }
 
@@ -219,18 +239,18 @@ void updateBlinkers() {
     if (side == leds::RIGHT) {
       for (int i = 0; i < 2; i++) {
         if (leds::blinkerState) {
-          leds::module_hind.setPixelColor(i, 255, 255, 0);
+          leds::module_back.setPixelColor(i, 255, 255, 0);
         } else {
-          leds::module_hind.setPixelColor(i, 0, 0, 0);
+          leds::module_back.setPixelColor(i, 0, 0, 0);
         }
       }
     }
     else if (side == leds::LEFT) {
       for (int i = leds::LEDS_NUMBER_HIND - 1; i > leds::LEDS_NUMBER_HIND - 3; i--) {
         if (leds::blinkerState) {
-          leds::module_hind.setPixelColor(i, 255, 255, 0);
+          leds::module_back.setPixelColor(i, 255, 255, 0);
         } else {
-          leds::module_hind.setPixelColor(i, 0, 0, 0);
+          leds::module_back.setPixelColor(i, 0, 0, 0);
         }
       }
     }

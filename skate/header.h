@@ -10,7 +10,7 @@ const int LEDS_NUMBER_HIND = 6;
 //colors for the LEDs
 const int NB_COLOR = 5;
 const int color[NB_COLOR][3] =  {{0, 255, 255}, {255, 0, 0}, {249, 209, 0}, {255, 0, 255}, {150, 150, 150}};
-const int FRANCE[3][3] =  {{255, 0, 0}, {255, 255, 255}, {0, 0, 255}};
+const int FRANCE[3][3] =  {{255, 0, 0}, {200, 200, 200}, {0, 0, 255}};
 
 
 //codes for the LEDs to send over Bluetooth
@@ -30,10 +30,16 @@ const int REARLIGHTOFF = 12;
 const int FRANCEON = 13;
 const int FRANCEOFF = 14;
 
+const int DISABLED = 0;
+const int SIDE = 1;
+const int BACK = 2;
+int newCommand = SIDE; // what type of command was received
+
 const int LEFT = 0; //define LEFT or RIGHT side for the rear light
 const int RIGHT = 1;
 
 int selectedColor = 0;
+int previousColor = 0;
 unsigned long lastMillis = 0;
 unsigned long blinkerMillisSpeed = 250;
 boolean activated = false; //are the LEDs strips activated
@@ -42,12 +48,12 @@ boolean rightBlinker = false;
 boolean blinkerState = false;
 boolean rearLight = false;
 boolean france = false;
-boolean newCommand = true; // was a new command received
+
 
 //module1 is back_right; module2 is back-left, module hind is rear !
 Adafruit_NeoPixel module1 = Adafruit_NeoPixel(LEDS_NUMBER, LEDS_PIN_1, NEO_GRB + NEO_KHZ800); //numb pixel; pin,
 Adafruit_NeoPixel module2 = Adafruit_NeoPixel(LEDS_NUMBER, LEDS_PIN_2, NEO_GRB + NEO_KHZ800); //numb pixel; pin,
-Adafruit_NeoPixel module_hind = Adafruit_NeoPixel(LEDS_NUMBER_HIND, LEDS_PIN_3, NEO_GRB + NEO_KHZ800); //numb pixel; pin,
+Adafruit_NeoPixel module_back = Adafruit_NeoPixel(LEDS_NUMBER_HIND, LEDS_PIN_3, NEO_GRB + NEO_KHZ800); //numb pixel; pin,
 }
 
 namespace BLE {
@@ -64,23 +70,24 @@ void truc(){
 
 void france(void){
   for(int j=2; j >=0; j--){
-    leds::module_hind.setPixelColor(2*j, leds::FRANCE[j][0],leds::FRANCE[j][1], leds::FRANCE[j][2]);
-    leds::module_hind.setPixelColor(2*j+1, leds::FRANCE[j][0], leds::FRANCE[j][1], leds::FRANCE[j][2]);
+    leds::module_back.setPixelColor(2*j, leds::FRANCE[j][0],leds::FRANCE[j][1], leds::FRANCE[j][2]);
+    leds::module_back.setPixelColor(2*j+1, leds::FRANCE[j][0], leds::FRANCE[j][1], leds::FRANCE[j][2]);
   }
 }
 
 void init_france(boolean stay){
   for(int j=2; j >=0; j--){
-    for(int w=0; w < 255; w+=5){
-      leds::module_hind.clear();
-      leds::module_hind.setPixelColor(2*j, w/float(255)*leds::FRANCE[j][0], w/float(255)*leds::FRANCE[j][1], w/float(255)*leds::FRANCE[j][2]);
-      leds::module_hind.setPixelColor(2*j+1,  w/float(255)*leds::FRANCE[j][0], w/float(255)*leds::FRANCE[j][1], w/float(255)*leds::FRANCE[j][2]);
-      leds::module_hind.show();
+    for(int w=0; w < 255; w+=10){
+      leds::module_back.clear();
+      leds::module_back.setPixelColor(2*j, w/float(255)*leds::FRANCE[j][0], w/float(255)*leds::FRANCE[j][1], w/float(255)*leds::FRANCE[j][2]);
+      leds::module_back.setPixelColor(2*j+1,  w/float(255)*leds::FRANCE[j][0], w/float(255)*leds::FRANCE[j][1], w/float(255)*leds::FRANCE[j][2]);
+      leds::module_back.show();
       delay(10);
     }
   }
   if (stay) france();
-  leds::module_hind.show();
+  else leds::module_back.clear();
+  leds::module_back.show();
 }
 
 
