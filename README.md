@@ -1,6 +1,10 @@
 # ESK8 : an electric skateboard project
 
-This repo gathers files I have been using for my electric skateboard.
+This repository gathers files I have been using for my electric skateboard.
+
+This e-skate is briefly presented in the pdf file and in a youtube video.
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/SoPx7NHiqSk/0.jpg)](https://www.youtube.com/watch?v=SoPx7NHiqSk)
 
 There are 3 folders.
 * 3D parts contains **.stl** and **.CATPart** files. You can edit the CATPart using Catia V5 or directly print the parts using the associated .stl files.
